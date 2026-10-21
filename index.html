@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dippe-Sippe | Familienhomepage & Ursprünge</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #0e1e1a;
+            --bg-sidebar: #091512;
+            --bg-card-dark: rgba(20, 43, 37, 0.90);
+            --bg-sand: #f4efe6;
+            --bg-sand-light: #faf7f2;
+            --border-sand: #ded4c3;
+            --border-green: rgba(52, 211, 153, 0.22);
+            --text-cream: #f4efe6;
+            --text-muted: #a7c4bc;
+            --text-dark: #122620;
+            --emerald: #10b981;
+            --emerald-dark: #059669;
+            --amber: #d97706;
+            --amber-light: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* Moderne, dezente Scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.12); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.38); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.65); }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(at 12% 15%, rgba(16, 185, 129, 0.16) 0px, transparent 50%),
+                radial-gradient(at 88% 82%, rgba(217, 119, 6, 0.14) 0px, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 Q 30 10 60 30 T 120 30 M0 70 Q 40 45 80 70 T 120 70 M0 105 Q 35 85 70 105 T 120 105' fill='none' stroke='%2334d399' stroke-width='0.7' stroke-opacity='0.09'/%3E%3Cpath d='M90 15 C 95 5, 110 5, 105 20 C 100 30, 85 25, 90 15 Z' fill='none' stroke='%23d97706' stroke-width='0.7' stroke-opacity='0.08'/%3E%3Cpath d='M25 85 C 30 75, 45 75, 40 90 C 35 100, 20 95, 25 85 Z' fill='none' stroke='%2334d399' stroke-width='0.7' stroke-opacity='0.08'/%3E%3C/svg%3E");
+            color: var(--text-cream);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: row;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: clamp(235px, 18vw, 280px);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-green);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .brand-box {
+            padding: clamp(14px, 2vh, 22px) clamp(14px, 1.5vw, 20px);
+            border-bottom: 1px solid var(--border-green);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--amber));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 19px;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+        }
+
+        .brand-title { font-size: clamp(18px, 1.4vw, 21px); font-weight: 800; color: #fff; }
+        .brand-sub { font-size: 11.5px; color: #34d399; margin-top: 2px; }
+
+        .nav-list { padding: clamp(10px, 1.5vh, 16px) 12px; display: flex; flex-direction: column; gap: 4px; }
+
+        .nav-btn {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-cream);
+            padding: clamp(8px, 1.1vh, 11px) 13px;
+            border-radius: 11px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.06); }
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--emerald-dark) 0%, #0d9488 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
+        }
+
+        .sub-nav {
+            padding-left: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-top: 2px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.28s ease, opacity 0.2s ease, margin 0.2s ease;
+        }
+        .sub-nav.open {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+        .nav-caret {
+            font-size: 11px;
+            opacity: 0.75;
+            transition: transform 0.25s ease;
+            display: inline-block;
+        }
+        .nav-btn.group-open .nav-caret { transform: rotate(90deg); }
+
+        .sub-nav-btn {
+            width: 100%;
+            border: none;
+            border-left: 3px solid rgba(52, 211, 153, 0.25);
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px 11px;
+            border-radius: 0 10px 10px 0;
+            font-size: 12.8px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .sub-nav-btn:hover { color: #fff; background: rgba(255,255,255,0.04); }
+        .sub-nav-btn.active {
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.16);
+            border-left-color: #10b981;
+        }
+
+        .sidebar-footer {
+            margin: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-green);
+            font-size: 11.5px;
+        }
+
+        /* MOBILE TOPBAR */
+        .mobile-bar {
+            display: none;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border-green);
+            padding: 12px 16px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: clamp(16px, 2.2vh, 34px) clamp(18px, 2.6vw, 48px);
+            max-width: none;
+            margin: 0;
+            width: 100%;
+            min-width: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        @media (min-width: 1700px) { .main-content { padding: 36px 64px; } }
+
+        .page-section { display: none; animation: fadeIn 0.28s ease-out; }
+        .page-section.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+            padding-bottom: 16px;
+        }
+        .page-section.active > .section-header { flex: 0 0 auto; }
+
+        #page-home .hero-card { flex: 0 0 auto; }
+        #page-home .home-bottom-grid {
+            flex: 1 0 auto;
+            align-items: stretch;
+        }
+        #page-home .home-bottom-grid > .sand-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #page-home #osm-map {
+            flex: 1 1 auto;
+            width: 100%;
+            height: clamp(280px, 36vh, 460px);
+            min-height: 270px;
+            border-radius: 16px;
+            border: 2px solid var(--border-sand);
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARDS & GRIDS */
+        .hero-card {
+            background: var(--bg-card-dark);
+            border: 1px solid var(--border-green);
+            border-radius: clamp(18px, 2vw, 26px);
+            padding: clamp(18px, 2.4vh, 32px) clamp(20px, 2.5vw, 34px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+            margin-bottom: clamp(16px, 2.2vh, 26px);
+        }
+
+        .sand-card {
+            background: var(--bg-sand);
+            color: var(--text-dark);
+            border: 1px solid var(--border-sand);
+            border-radius: clamp(16px, 1.8vw, 22px);
+            padding: clamp(16px, 2vh, 24px);
+            box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+        }
+
+        .hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(18px, 2.4vw, 30px); align-items: center; }
+        .home-bottom-grid { display: grid; grid-template-columns: 1.35fr 0.85fr; gap: clamp(16px, 2vw, 24px); }
+
+        /* TYPOGRAPHY & BUTTONS */
+        .eyebrow {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #fbbf24;
+            margin-bottom: 4px;
+        }
+        .eyebrow-dark {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--emerald-dark);
+            margin-bottom: 4px;
+        }
+
+        .hero-title {
+            font-size: clamp(24px, 2.5vw, 38px);
+            line-height: 1.15;
+            font-weight: 800;
+            margin: 6px 0 12px;
+            color: #fff;
+        }
+        .highlight-grad {
+            background: linear-gradient(90deg, #34d399, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: clamp(8px, 1vh, 11px) clamp(13px, 1.4vw, 18px);
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .btn-emerald { background: linear-gradient(135deg, var(--emerald-dark), #0d9488); color: #fff; }
+        .btn-emerald:hover { filter: brightness(1.08); }
+        .btn-amber { background: linear-gradient(135deg, var(--amber), var(--amber-light)); color: #122620; }
+        .btn-amber:hover { filter: brightness(1.08); }
+        .btn-sand { background: var(--bg-sand); color: var(--text-dark); border: 1px solid var(--border-sand); }
+        .btn-sand:hover { background: #fff; }
+        .btn-dark { background: var(--text-dark); color: var(--bg-sand); }
+        .btn-dark:hover { background: #1e3f35; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 99px;
+            background: rgba(245, 158, 11, 0.16);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            color: #fbbf24;
+            margin-top: 14px;
+            width: fit-content;
+        }
+
+        /* Wappen im Home-Hero */
+        .wappen-frame {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 0; overflow: hidden;
+        }
+        .wappen-frame img {
+            max-height: clamp(220px, 38vh, 420px);
+            max-width: 100%;
+            width: auto; height: auto;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 18px 36px rgba(0,0,0,0.45);
+            display: block;
+        }
+
+        .impressum-card { max-width: 680px; color: var(--text-dark); }
+        .impressum-card h3 { margin: 18px 0 7px; font-size: 19px; }
+        .impressum-card h3:first-child { margin-top: 0; }
+        .impressum-card p { line-height: 1.7; font-size: 14px; }
+        .created-by { margin-top: 26px; font-weight: 800; color: var(--emerald-dark); font-size: 16px !important; }
+        .impressum-note { margin-top: 28px; color: #64748b; font-size: 12px !important; border-top: 1px solid var(--border-sand); padding-top: 12px; }
+
+        .form-input {
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border-sand);
+            font-size: 13.5px;
+            font-family: inherit;
+            background: #fff;
+            color: var(--text-dark);
+        }
+
+        .section-header {
+            border-bottom: 1px solid var(--border-green);
+            padding-bottom: clamp(10px, 1.4vh, 16px);
+            margin-bottom: clamp(14px, 2vh, 22px);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .section-header h2 {
+            font-size: clamp(22px, 2.2vw, 32px) !important;
+            line-height: 1.15;
+        }
+
+        /* SPEZIAL-ANPASSUNG FÜR KOMPAKTE HOCHAUFLÖSENDE LAPTOPS */
+        @media (max-height: 860px) and (min-width: 981px) {
+            .main-content { padding: 14px 22px; }
+            .section-header { padding-bottom: 8px; margin-bottom: 12px; }
+            .hero-card { padding: 18px 22px; margin-bottom: 16px; border-radius: 18px; }
+            .sand-card { padding: 15px 18px; border-radius: 16px; }
+            #page-home .hero-grid img[alt="Scrabble Familie Dippe"] { height: 110px !important; margin-bottom: 8px !important; }
+            .wappen-frame img { max-height: 32vh; }
+            #page-home #osm-map { height: 290px; min-height: 260px; }
+        }
+
+        /* MITTLERE BREITEN */
+        @media (max-width: 1280px) and (min-width: 981px) {
+            .sidebar { width: 235px; }
+            .main-content { padding: 18px 22px; }
+            .hero-grid { grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+            .home-bottom-grid { grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+        }
+
+        /* RESPONSIVE FÜR SMARTPHONES & TABLETS */
+        @media (max-width: 980px) {
+            body { flex-direction: column; }
+            .mobile-bar { display: flex; }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 58px;
+                width: 280px;
+                height: calc(100vh - 58px);
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                box-shadow: 12px 0 30px rgba(0,0,0,0.5);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content {
+                padding: 16px 14px;
+                height: auto;
+                min-height: calc(100vh - 58px);
+                overflow: visible;
+            }
+            .page-section.active {
+                overflow-y: visible;
+                padding-right: 0;
+            }
+            .hero-grid, .home-bottom-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-title { font-size: 26px; }
+            .hero-card, .sand-card { padding: 16px; border-radius: 18px; }
+            #page-home #osm-map { height: 300px; min-height: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MOBILE HEADER -->
+    <div class="mobile-bar">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div class="brand-logo" style="width:34px; height:34px; font-size:14px;">DS</div>
+            <strong class="font-display" style="font-size:17px;">Dippe-Sippe</strong>
+        </div>
+        <button class="btn btn-sand" style="padding:7px 13px; font-size:13px;" onclick="toggleSidebar()">Menü ☰</button>
+    </div>
+
+    <!-- SEITENLEISTE (SIDEBAR) -->
+    <aside id="sidebar" class="sidebar">
+        <div>
+            <div class="brand-box">
+                <div class="brand-logo">DS</div>
+                <div>
+                    <div class="brand-title">Dippe-Sippe</div>
+                    <div class="brand-sub">🌲 Pirna · Sächsische Schweiz</div>
+                </div>
+            </div>
+
+            <nav class="nav-list">
+                <button onclick="switchPage('home')" id="nav-home" class="nav-btn active">
+                    <span>🏠 Home</span>
+                </button>
+
+                <button onclick="toggleNavGroup('rechtliches')" id="nav-rechtliches" class="nav-btn group-open">
+                    <span>⚖️ Rechtliches</span>
+                    <span id="caret-rechtliches" class="nav-caret">▸</span>
+                </button>
+                <div class="sub-nav open" id="subnav-group-rechtliches">
+                    <button onclick="switchPage('impressum')" id="subnav-impressum" class="sub-nav-btn">
+                        <span>📄 Impressum</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+            <div style="font-weight:700; color:#34d399;">● www.dippe-sippe.de</div>
+            <div style="color:var(--text-muted); margin-top:4px;">Emil-Gast-Str. 4 · 01796 Pirna</div>
+        </div>
+    </aside>
+
+    <!-- HAUPTBEREICH -->
+    <main class="main-content">
+
+        <!-- ===============================================================
+             1. HOME SEITE
+             =============================================================== -->
+        <section id="page-home" class="page-section active">
+            <div class="hero-card">
+                <div class="hero-grid">
+                    <div>
+                        <img src="ScrabbleFamilieDippe.jpeg" alt="Scrabble Familie Dippe"
+                             style="display:block; height:155px; width:auto; max-width:100%; border-radius:8px; margin-bottom:12px;"
+                             onerror="if(!this.dataset.triedLower){this.dataset.triedLower='1'; this.src='scrabblefamiliedippe.jpeg';}else{this.style.display='none';}">
+                        <span class="eyebrow">🌿 Willkommen bei Familie Dippe</span>
+                        <h2 class="hero-title">
+                            Unser Familienzuhause im Tor zur <span class="highlight-grad">Sächsischen Schweiz</span>.
+                        </h2>
+                        <p style="color:var(--text-muted); font-size:15.5px; line-height:1.65; margin-bottom:0;">
+                            Herzlich willkommen auf der Homepage der Dippe-Sippe! Von unserem Zuhause in Pirna aus entsteht an dieser Stelle Schritt für Schritt eine digitale Anlaufstelle rund um unsere Familie, unsere Wurzeln und die Geschichte des Namens Dippe.
+                        </p>
+                    </div>
+
+                    <div class="wappen-frame">
+                        <img src="DippeSippeWappen.jpg"
+                             alt="Wappen der Dippe-Sippe"
+                             onerror="if(!this.dataset.triedLower){this.dataset.triedLower='1'; this.src='dippesippewappen.jpg';}else{this.parentElement.innerHTML='<div style=\'padding:40px; text-align:center; color:#f4efe6;\'><h3 style=\'color:#fbbf24; margin-bottom:8px;\'>Familienwappen</h3><p style=\'font-size:13px; opacity:0.85;\'>Bilddatei (DippeSippeWappen.jpg) wird geladen…</p></div>';}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-bottom-grid">
+                <!-- Karte links -->
+                <div class="sand-card">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+                        <div>
+                            <span class="eyebrow-dark">Unser Standort</span>
+                            <h3 style="font-size:21px; font-weight:800;" id="home-loc-title">📍 Emil-Gast-Straße 4, 01796 Pirna</h3>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                            <label style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; white-space:nowrap;">
+                                🗺️ <select id="home-layer-select" class="form-input" style="width:auto; min-width:155px; max-width:210px; padding:6px 10px;" onchange="setHomeLayer(this.value)"></select>
+                            </label>
+                            <a id="home-route-link" href="#" target="_blank" rel="noopener" class="btn btn-dark" style="padding:8px 14px; font-size:12px;">
+                                Größere Karte & Route ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div id="osm-map"></div>
+                </div>
+
+                <!-- Teaser-Karten rechts -->
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="hero-card" style="margin-bottom:0; padding:24px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                            <span class="eyebrow">⏳ Seite im Entstehen</span>
+                            <h3 style="font-size:21px; font-weight:800; margin-bottom:10px;">🌳 Die Ursprünge der Familie Dippe</h3>
+                            <p style="color:var(--text-muted); font-size:14.2px; line-height:1.6;">
+                                Woher stammt die Familie Dippe ursprünglich und wie verzweigen sich unsere familiären Linien über die Generationen hinweg? 
+                            </p>
+                            <p style="color:var(--text-muted); font-size:14.2px; line-height:1.6; margin-top:8px;">
+                                Hinter den Kulissen sichten wir aktuell historische Dokumente, Stammbaumdaten und Familienarchive. Schon bald wächst hier ein Einblick in die Geschichte und Herkunft unserer Sippe.
+                            </p>
+                        </div>
+                        <div class="status-pill">
+                            🛠️ Chronik & Stammbaum in Vorbereitung
+                        </div>
+                    </div>
+
+                    <div class="sand-card" style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                            <span class="eyebrow-dark">Spurensuche & Kontakt</span>
+                            <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">📜 Gemeinsame Wurzeln & Austausch</h3>
+                            <p style="font-size:13.8px; line-height:1.58; opacity:0.9;">
+                                Unsere familiäre Spurensuche entwickelt sich stetig weiter. Kontaktmöglichkeiten sowie einen Verweis auf weitere Projekte findest du im Impressum.
+                            </p>
+                        </div>
+                        <div style="margin-top:14px;">
+                            <button class="btn btn-dark" style="width:100%;" onclick="switchPage('impressum')">
+                                📄 Zum Impressum
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===============================================================
+             2. IMPRESSUM
+             =============================================================== -->
+        <section id="page-impressum" class="page-section">
+            <div class="section-header">
+                <div>
+                    <span class="eyebrow">Rechtliches</span>
+                    <h2 style="font-size:32px; font-weight:800;">📄 Impressum</h2>
+                </div>
+            </div>
+            <div class="sand-card impressum-card">
+                <h3>Angaben gemäß § 5 DDG</h3>
+                <p><strong>Peter Dippe</strong><br>Emil-Gast-Straße 4<br>01796 Pirna<br>Deutschland</p>
+
+                <h3>Kontakt & Profil</h3>
+                <p>Verantwortlich für den Inhalt dieser Website: Peter Dippe</p>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
+                    <a href="https://www.linkedin.com/in/peter-dippe/" target="_blank" rel="noopener" class="btn btn-emerald" style="font-size:13px; padding:8px 14px;">
+                        🔗 LinkedIn-Profil von Peter Dippe ↗
+                    </a>
+                </div>
+
+                <h3>Persönliche Projektseite & Spielwiese</h3>
+                <p>Interaktive Karten- und Geometrie-Tools (Maps Math, Berg-Dominanz-Atlas, Pure Math) sowie weitere Projekte sind auf meiner persönlichen Seite zu finden:</p>
+                <p style="margin-top:10px;">
+                    <a href="https://pi.dippe-sippe.de" target="_blank" rel="noopener" class="btn btn-amber" style="font-size:13px; padding:8px 14px;">
+                        🚀 Zu pi.dippe-sippe.de wechseln ↗
+                    </a>
+                </p>
+
+                <p class="created-by">created by Pi 🐙</p>
+                <p class="impressum-note">Hinweis: Bitte prüfe vor der Veröffentlichung, ob für deine konkrete Nutzung weitere Pflichtangaben erforderlich sind.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===================================================================
+         JAVASCRIPT LOGIK (SCHLANK: NUR NAVIGATION & STARTSEITEN-KARTE)
+         =================================================================== -->
+    <script>
+        // -----------------------------------------------------------------
+        // 1. NAVIGATION
+        // -----------------------------------------------------------------
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        const NAV_GROUPS = {
+            rechtliches: ['impressum']
+        };
+
+        function groupOfPage(pageId) {
+            for (const g in NAV_GROUPS) {
+                if (NAV_GROUPS[g].includes(pageId)) return g;
+            }
+            return null;
+        }
+
+        function toggleNavGroup(group) {
+            const panel = document.getElementById('subnav-group-' + group);
+            const btn = document.getElementById('nav-' + group);
+            if (!panel || !btn) return;
+            const isOpen = panel.classList.toggle('open');
+            btn.classList.toggle('group-open', isOpen);
+        }
+
+        function openNavGroup(group) {
+            const panel = document.getElementById('subnav-group-' + group);
+            const btn = document.getElementById('nav-' + group);
+            if (panel) panel.classList.add('open');
+            if (btn) btn.classList.add('group-open');
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sub-nav-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.classList.add('active');
+
+            const group = groupOfPage(pageId);
+            if (group) {
+                const groupBtn = document.getElementById('nav-' + group);
+                if (groupBtn) groupBtn.classList.add('active');
+                openNavGroup(group);
+                const sub = document.getElementById('subnav-' + pageId);
+                if (sub) sub.classList.add('active');
+            } else {
+                const nav = document.getElementById('nav-' + pageId);
+                if (nav) nav.classList.add('active');
+            }
+
+            document.getElementById('sidebar').classList.remove('open');
+
+            if (pageId === 'home' && homeMap) {
+                setTimeout(() => homeMap.invalidateSize(), 150);
+            }
+        }
+
+        let _mapResizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(_mapResizeTimer);
+            _mapResizeTimer = setTimeout(() => {
+                if (typeof homeMap !== 'undefined' && homeMap) homeMap.invalidateSize();
+            }, 180);
+        });
+
+        // -----------------------------------------------------------------
+        // 2. STARTSEITEN-KARTE (Standort Pirna + Kartenebenen)
+        // -----------------------------------------------------------------
+        let homeMap = null;
+        let homeMarker = null;
+        let homeLayers = {};
+
+        const HOME_LOCATIONS = [
+            { id: 'dippe-graupa', label: 'Familie Dippe (Graupa)', fam: 'Familie Dippe',
+              addr: 'Emil-Gast-Straße 4', plz: '01796 Pirna', lat: 50.9939978, lon: 13.9076698 }
+        ];
+
+        function buildLayerSet() {
+            return {
+                'osm':            L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }),
+                'google-streets': L.tileLayer('//mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' }),
+                'google-sat':     L.tileLayer('//mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Satellit' }),
+                'topo':           L.tileLayer('//{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© OpenTopoMap' }),
+                'esri-sat':       L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri, Maxar, Earthstar Geographics' })
+            };
+        }
+
+        const LAYER_LABELS = {
+            'osm': 'OpenStreetMap',
+            'google-streets': 'Google Maps',
+            'google-sat': 'Google Satellit',
+            'topo': 'Topografie',
+            'esri-sat': 'Esri Luftbild (3D-artig)'
+        };
+        const LAYER_ORDER = ['osm', 'google-streets', 'google-sat', 'topo', 'esri-sat'];
+
+        function externalMapUrl(key, lat, lon, z) {
+            z = z || 17;
+            switch (key) {
+                case 'google-streets': return `https://www.google.com/maps/@${lat},${lon},${z}z`;
+                case 'google-sat':     return `https://www.google.com/maps/@${lat},${lon},${z}z/data=!3m1!1e3`;
+                case 'topo':           return `https://www.opentopomap.org/#map=${z}/${lat}/${lon}`;
+                case 'esri-sat':       return `https://www.arcgis.com/apps/mapviewer/index.html?center=${lon},${lat}&level=${z}`;
+                default:               return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=${z}/${lat}/${lon}`;
+            }
+        }
+
+        function fillLayerSelect(selId, current) {
+            const sel = document.getElementById(selId);
+            if (!sel) return;
+            sel.innerHTML = LAYER_ORDER.map(k => `<option value="${k}"${k===current?' selected':''}>${LAYER_LABELS[k]}</option>`).join('');
+        }
+
+        let homeLayerKey = 'osm';
+
+        function updateHomeRouteLink() {
+            const loc = HOME_LOCATIONS[0];
+            const link = document.getElementById('home-route-link');
+            if (loc && link) link.href = externalMapUrl(homeLayerKey, loc.lat, loc.lon, 17);
+        }
+
+        function initHomeMap() {
+            if (typeof L === 'undefined') return;
+            const loc = HOME_LOCATIONS[0];
+            homeMap = L.map('osm-map').setView([loc.lat, loc.lon], 17);
+            homeLayers = buildLayerSet();
+            homeLayers['osm'].addTo(homeMap);
+            homeMarker = L.marker([loc.lat, loc.lon]).addTo(homeMap);
+            homeMarker.bindPopup(`<b>${loc.fam}</b><br>${loc.addr}<br>${loc.plz}`).openPopup();
+
+            fillLayerSelect('home-layer-select', 'osm');
+            const t = document.getElementById('home-loc-title');
+            if (t) t.textContent = '📍 ' + loc.addr + ', ' + loc.plz;
+            updateHomeRouteLink();
+        }
+
+        function setHomeLayer(key) {
+            if (!homeMap || !homeLayers[key]) return;
+            Object.values(homeLayers).forEach(l => homeMap.removeLayer(l));
+            homeLayers[key].addTo(homeMap);
+            homeLayerKey = key;
+            updateHomeRouteLink();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initHomeMap();
+        });
+    </script>
+</body>
+</html>
